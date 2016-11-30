@@ -1,0 +1,178 @@
+--1
+INSERT INTO INSTRUCTOR (INSTRUCTOR_ID, SALUTATION, FIRST_NAME, LAST_NAME, STREET_ADDRESS, ZIP, PHONE, CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE)
+VALUES ('815', 'Mr', 'Hugo', 'Reys', '2342 Oceanic Way', '07002', NULL, 'SR', sysdate, 'SR', sysdate);
+
+
+--2
+INSERT INTO SECTION (SECTION_ID, COURSE_NO, SECTION_NO, START_DATE_TIME, LOCATION, INSTRUCTOR_ID, CAPACITY,CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE)
+VALUES ('48', '142', '4',TO_DATE('22-SEP-11 08:15', 'DD-MON-YY HH:MI'), 'L211', '815', '15', 'SR', sysdate, 'SR', sysdate);
+
+
+--3
+INSERT ALL 
+  INTO ENROLLMENT (STUDENT_ID, SECTION_ID, ENROLL_DATE, FINAL_GRADE, CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE)
+  VALUES ('375', '48', sysdate, NULL, 'SR', sysdate, 'SR', sysdate)
+  INTO ENROLLMENT (STUDENT_ID, SECTION_ID, ENROLL_DATE, FINAL_GRADE, CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE)
+  VALUES ('137', '48', sysdate, NULL, 'SR', sysdate, 'SR', sysdate)
+  INTO ENROLLMENT (STUDENT_ID, SECTION_ID, ENROLL_DATE, FINAL_GRADE, CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE)
+  VALUES ('266', '48', sysdate, NULL, 'SR', sysdate, 'SR', sysdate)
+  INTO ENROLLMENT (STUDENT_ID, SECTION_ID, ENROLL_DATE, FINAL_GRADE, CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE)
+  VALUES ('382', '48', sysdate, NULL, 'SR', sysdate, 'SR', sysdate)
+SELECT * FROM DUAL;
+
+--4
+DELETE FROM GRADE
+WHERE STUDENT_ID = 147 AND SECTION_ID = 120;
+
+DELETE FROM ENROLLMENT
+WHERE STUDENT_ID = 147 AND SECTION_ID = 120;
+
+
+--5
+DELETE FROM GRADE
+WHERE STUDENT_ID = 180 AND SECTION_ID = 119;
+
+DELETE FROM ENROLLMENT
+WHERE STUDENT_ID = 180 AND SECTION_ID = 119;
+
+--6
+UPDATE INSTRUCTOR
+  SET PHONE = '4815162342'
+  WHERE INSTRUCTOR_ID = '815';
+
+
+--7
+UPDATE GRADE
+  SET NUMERIC_GRADE = 100
+  WHERE GRADE_TYPE_CODE = 'HM' AND SECTION_ID = 119 AND GRADE_CODE_OCCURRENCE = 1;
+
+
+--8
+UPDATE GRADE
+  SET NUMERIC_GRADE = NUMERIC_GRADE*1.1
+  WHERE GRADE_TYPE_CODE = 'FI' AND SECTION_ID = 119;
+  
+
+--9
+SELECT t1.SECTION_ID, t1.LOCATION, NVL(t2.ENROLLED, 0 )
+FROM (SELECT SECTION_ID, LOCATION
+FROM SECTION 
+WHERE COURSE_NO = 142) t1 
+LEFT OUTER JOIN 
+(SELECT SECTION_ID, COUNT(*) AS "ENROLLED"
+FROM ENROLLMENT
+WHERE SECTION_ID IN ('119', '120', '121','48')
+GROUP BY SECTION_ID) t2
+ON t1.SECTION_ID = t2.SECTION_ID
+ORDER BY t1.SECTION_ID;
+
+--10
+SELECT inst.FIRST_NAME, inst.LAST_NAME, inst.PHONE
+FROM INSTRUCTOR inst 
+JOIN SECTION sec
+ON inst.INSTRUCTOR_ID = sec.INSTRUCTOR_ID
+WHERE sec.SECTION_ID IN ('119', '120', '121','48')
+ORDER BY inst.FIRST_NAME;
+
+--11
+SELECT stu.STUDENT_ID, stu.FIRST_NAME, stu.LAST_NAME, ROUND(AVG(gr.NUMERIC_GRADE),2) AS "AVERAGE"
+FROM ENROLLMENT enr 
+JOIN GRADE gr
+ON enr.STUDENT_ID = gr.STUDENT_ID AND enr.SECTION_ID = gr.SECTION_ID
+JOIN STUDENT stu
+ON enr.STUDENT_ID = stu.STUDENT_ID
+WHERE gr.SECTION_ID = '119'
+GROUP BY stu.STUDENT_ID, stu.FIRST_NAME, stu.LAST_NAME
+ORDER BY stu.STUDENT_ID;
+
+--12
+SELECT COUNT(*)
+FROM
+(
+    SELECT t1.INSTRUCTOR_ID, t2."COUNT" AS "ENROLLED"
+        FROM
+        (
+            SELECT INSTRUCTOR_ID, SECTION_ID
+            FROM SECTION
+            WHERE SECTION_ID IN
+            (
+            SELECT SECTION_ID
+            FROM SECTION
+            WHERE LOCATION = 'L211'
+            )
+        )t1
+        JOIN
+        (
+            SELECT SECTION_ID, COUNT(*) AS "COUNT"
+            FROM ENROLLMENT
+            WHERE SECTION_ID IN (
+            SELECT SECTION_ID
+            FROM SECTION
+            WHERE LOCATION = 'L211')
+            GROUP BY SECTION_ID
+        ) t2
+        ON t1.SECTION_ID = t2.SECTION_ID
+    WHERE t2."COUNT" =  (SELECT MAX("ENROLLED")
+                         FROM
+                         (
+                            SELECT t1.INSTRUCTOR_ID, t2."COUNT" AS "ENROLLED"
+                            FROM
+                            (
+                                SELECT INSTRUCTOR_ID, SECTION_ID
+                                FROM SECTION
+                                WHERE SECTION_ID IN
+                                (
+                                SELECT SECTION_ID
+                                FROM SECTION
+                                WHERE LOCATION = 'L211'
+                                )
+                            )t1
+                            JOIN
+                            (
+                                SELECT SECTION_ID, COUNT(*) AS "COUNT"
+                                FROM ENROLLMENT
+                                WHERE SECTION_ID IN (
+                                SELECT SECTION_ID
+                                FROM SECTION
+                                WHERE LOCATION = 'L211')
+                                GROUP BY SECTION_ID
+                            ) t2
+                            ON t1.SECTION_ID = t2.SECTION_ID
+                         )
+                        )
+)
+GROUP BY INSTRUCTOR_ID;
+
+--13
+SELECT DISTINCT inst.SALUTATION||'.'||' '||inst.FIRST_NAME||' '||inst.LAST_NAME "INSTRUCTOR", inst.PHONE
+FROM INSTRUCTOR inst JOIN SECTION sec
+ON inst.INSTRUCTOR_ID = sec.INSTRUCTOR_ID
+WHERE inst.INSTRUCTOR_ID NOT IN( 
+                                SELECT DISTINCT inst.INSTRUCTOR_ID 
+                                FROM INSTRUCTOR inst JOIN SECTION sec
+                                ON inst.INSTRUCTOR_ID = sec.INSTRUCTOR_ID
+                                WHERE sec.COURSE_NO IN (SELECT COURSE_NO
+                                                        FROM SECTION
+                                                        WHERE COURSE_NO != 142)
+                                );
+--14
+SELECT stu.FIRST_NAME, stu.LAST_NAME, sec.SECTION_ID, sec.COURSE_NO
+FROM STUDENT stu JOIN ENROLLMENT enr
+ON stu.STUDENT_ID = enr.STUDENT_ID
+JOIN SECTION sec
+ON enr.SECTION_ID = sec.SECTION_ID
+WHERE sec.SECTION_ID NOT IN (SELECT SECTION_ID
+                             FROM GRADE
+                             );
+
+--15
+SELECT STARTTIME, COUNT(*) AS "NUMBER_OF_COURSES"
+FROM
+(
+    SELECT DISTINCT TO_CHAR(START_DATE_TIME,'HH:MI') AS "STARTTIME", COURSE_NO
+    FROM SECTION
+    WHERE TO_CHAR(START_DATE_TIME,'HH:MI') IN (SELECT DISTINCT TO_CHAR(START_DATE_TIME,'HH:MI') AS "STARTTIME"
+                                               FROM SECTION)
+)
+GROUP BY STARTTIME
+ORDER BY STARTTIME;
