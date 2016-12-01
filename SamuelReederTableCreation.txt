@@ -1,0 +1,156 @@
+--table creation script
+CREATE TABLE ALBUM
+(
+   AlbumID   NUMBER(10)    NOT NULL PRIMARY KEY,
+   Title     VARCHAR(160)  NOT NULL,
+   ArtistID  NUMBER(10)    NOT NULL
+);
+
+CREATE TABLE ARTIST
+(
+  ArtistID NUMBER(10) NOT NULL PRIMARY KEY,
+  Name VARCHAR(120)
+);
+
+CREATE TABLE GENRE
+(
+  GenreID NUMBER(10) NOT NULL PRIMARY KEY,
+  Name    VARCHAR(120)
+);
+
+CREATE TABLE MEDIATYPE
+(
+  MediaTypeID NUMBER(10) NOT NULL PRIMARY KEY,
+  Name        VARCHAR(120)
+);
+
+CREATE TABLE TRACK
+(
+  TrackID      NUMBER(10) NOT NULL PRIMARY KEY,
+  Name         VARCHAR(200) NOT NULL,
+  AlbumID     NUMBER(10),
+  MediaTypeID  NUMBER(10), 
+  GenreID      NUMBER(10),
+  Composer     VARCHAR(220),
+  Milliseconds NUMBER(10) NOT NULL,
+  Bytes        NUMBER(10) NOT NULL,
+  UnitPrice    NUMBER(10) NOT NULL
+);
+
+--FK contraint addtion
+ALTER TABLE ALBUM
+ADD CONSTRAINT FK_toArtistID FOREIGN KEY (ArtistID) REFERENCES ARTIST(ArtistID);
+
+ALTER TABLE TRACK
+ADD CONSTRAINT FK_albumID FOREIGN KEY (AlbumID) REFERENCES ALBUM(AlbumID);
+
+ALTER TABLE TRACK
+ADD CONSTRAINT FK_mediaTypeID FOREIGN KEY (MediaTypeID) REFERENCES MEDIATYPE(MediaTypeID);
+
+ALTER TABLE TRACK
+ADD CONSTRAINT FK_genreID FOREIGN KEY (GenreID) REFERENCES GENRE(GenreID);
+
+--data insert stations
+INSERT ALL
+  INTO GENRE (GenreID, Name)
+  VALUES (1, 'Rock')
+  INTO GENRE (GenreID, Name)
+  VALUES (2, 'JAZZ')
+  INTO GENRE (GenreID, Name)
+  VALUES (3, 'Metal')
+  INTO GENRE (GenreID, Name)
+  VALUES (4, 'Alternative/Punk')
+  INTO GENRE (GenreID, Name)
+  VALUES (5, 'Rock and Roll')
+  INTO GENRE (GenreID, Name)
+  VALUES (6, 'Blues')
+  INTO GENRE (GenreID, Name)
+  VALUES (7, 'Latin')
+  INTO GENRE (GenreID, Name)
+  VALUES (8, 'Reggae')
+  INTO GENRE (GenreID, Name)
+  VALUES (9, 'Pop')
+  INTO GENRE (GenreID, Name)
+  VALUES (10, 'Soundtrack')
+  INTO GENRE (GenreID, Name)
+  VALUES (11, 'Bossa Nova')
+  INTO GENRE (GenreID, Name)
+  VALUES (12, 'Easy Listening')
+  INTO GENRE (GenreID, Name)
+  VALUES (13, 'Heavy Metal')
+  INTO GENRE (GenreID, Name)
+  VALUES (14, 'R and B/Soul')
+  INTO GENRE (GenreID, Name)
+  VALUES (15, 'Electronica/Dance')
+  INTO GENRE (GenreID, Name)
+  VALUES (16, 'World')
+  INTO GENRE (GenreID, Name)
+  VALUES (17, 'Hip Hop/Rap')
+  INTO GENRE (GenreID, Name)
+  VALUES (18, 'Science Fiction')
+  INTO GENRE (GenreID, Name)
+  VALUES (19, 'TV Shows')
+  INTO GENRE (GenreID, Name)
+  VALUES (20, 'Sci Fi and Fantasy')
+  INTO GENRE (GenreID, Name)
+  VALUES (21, 'Drama')
+  INTO GENRE (GenreID, Name)
+  VALUES (22, 'Comedy')
+  INTO GENRE (GenreID, Name)
+  VALUES (23, 'Alternative')
+  INTO GENRE (GenreID, Name)
+  VALUES (24, 'Classical')
+  INTO GENRE (GenreID, Name)
+  VALUES (25, 'Opera')
+SELECT * FROM DUAL;
+
+INSERT ALL
+  INTO MEDIATYPE (MEDIATYPEID,NAME)
+  VALUES (1, 'MPEG audio file')
+  INTO MEDIATYPE (MEDIATYPEID,NAME)
+  VALUES (2, 'Protected AAC audio file')
+  INTO MEDIATYPE (MEDIATYPEID,NAME)
+  VALUES (3, 'Protected MPEG-4 video file')
+  INTO MEDIATYPE (MEDIATYPEID,NAME)
+  VALUES (4, 'Purchased AAC audio file')
+  INTO MEDIATYPE (MEDIATYPEID,NAME)
+  VALUES (5, 'ACC audio file')
+SELECT * FROM DUAL;
+
+INSERT ALL
+  INTO ARTIST (ARTISTID,NAME)
+  VALUES (1, 'AC/DC')
+  INTO ARTIST (ARTISTID,NAME)
+  VALUES (2, 'Accept')
+  INTO ARTIST (ARTISTID,NAME)
+  VALUES (3, 'Aerosmith')
+  INTO ARTIST (ARTISTID,NAME)
+  VALUES (4, 'Alanis Morissette')
+  INTO ARTIST (ARTISTID,NAME)
+  VALUES (5, 'Alice in Chains')
+  INTO ARTIST (ARTISTID,NAME)
+  VALUES (6, 'Antonio Carlos Jobim')
+  INTO ARTIST (ARTISTID,NAME)
+  VALUES (7, 'Apocalyptica')
+  INTO ARTIST (ARTISTID,NAME)
+  VALUES (8, 'Audioslave')
+  INTO ARTIST (ARTISTID,NAME)
+  VALUES (9, 'BackBeat')
+  INTO ARTIST (ARTISTID,NAME)
+  VALUES (10, 'Billy Cobham')
+  INTO ARTIST (ARTISTID,NAME)
+  VALUES (11, 'Black Label Society')
+  INTO ARTIST (ARTISTID,NAME)
+  VALUES (12, 'Black Sabbath')
+SELECT * FROM DUAL;
+
+SAVEPOINT a;
+
+INSERT ALL
+  INTO ALBUM (ALBUMID,TITLE,ARTISTID)
+  VALUES (1,'For Those About to Rock We Salute You',1)
+  INTO ALBUM (ALBUMID,TITLE,ARTISTID)
+  VALUES (2,'Balls to the Wall',2)
+  INTO ALBUM (ALBUMID,TITLE,ARTISTID)
+  VALUES (4,'Let There be Rock',1)
+SELECT * FROM DUAL
